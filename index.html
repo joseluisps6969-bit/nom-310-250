@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NOM </title>
+<!-- Enlace para que el dispositivo reconozca las propiedades de instalación PWA -->
+<link rel="manifest" href="manifest.json">
+<style>
+body{font-family:Arial,sans-serif;background:#0f172a;color:#fff;margin:0}
+header{background:#111827;padding:15px;text-align:center;border-bottom:2px solid #1e293b}
+h1{margin:0;font-size:24px;color:#38bdf8}
+.screen{padding:20px;max-width:800px;margin:auto}
+.card{background:#1e293b;padding:20px;border-radius:12px;margin:15px 0;border:1px solid #334155}
+h2{margin-top:0;color:#f8fafc;font-size:20px}
+button{padding:12px 20px;border:none;border-radius:8px;margin:5px;background:#2563eb;color:white;cursor:pointer;font-weight:bold;font-size:14px;transition:background 0.2s}
+button:hover{background:#1d4ed8}
+button:disabled{background:#475569;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:15px}
+.hidden{display:none}
+#question{font-size:24px;text-align:center;margin:30px 0;color:#f1f5f9;line-height:1.4}
+#fb{text-align:center;font-size:22px;margin:15px;min-height:32px;font-weight:bold}
+.btn-nav{background:#475569;margin-top:25px;width:100%;padding:14px}
+.btn-nav:hover{background:#334155}
+.stats{font-size:18px;font-weight:bold;background:#1e293b;padding:10px 15px;border-radius:8px;display:flex;justify-content:space-between;border:1px solid #334155}
+</style>
+</head>
+<body>
+<header><h1>⚡ NOM tabla 310 y 250⚡ </h1></header>
+
+<div class="screen" id="home">
+<div class="card"><h2>Tabla 310 - Conductores</h2>
+<button onclick="start('amp')">¿Cuántos A aguanta?</button>
+<button onclick="start('calibre')">¿Qué calibre?</button>
+<button onclick="start('survival')">Modo supervivencia</button>
+</div>
+
+<div class="card"><h2>Art. 250 - Puesta a Tierra</h2>
+<button onclick="start250()">Puesta a tierra y unión</button>
+</div>
+</div>
+
+<div class="screen hidden" id="game">
+<div class="stats">
+    <span>Puntos: <span id="pts" style="color:#38bdf8">0</span></span>
+    <span>Racha 🔥: <span id="streak" style="color:#fb923c">0</span></span>
+</div>
+<div id="question"></div>
+<div id="options" class="grid"></div>
+<div id="fb"></div>
+<button class="btn-nav" onclick="home()">Volver al Inicio</button>
+</div>
+
+<script>
+// Base de datos técnicos reales de la NOM-001-SEDE
+const tabla=[["14",15,15,25],["12",20,20,30],["10",30,30,40],["8",40,50,55],["6",55,65,75],["4",70,85,95],["2",95,115,130],["1/0",125,150,170]];
+const art250=[
+    ["Interruptor de 100A: Calibre mínimo del conductor de puesta a tierra de equipos (Cobre)","8 AWG"],
+    ["Función principal del sistema de puesta a tierra de equipos","Protección contra descargas"],
+    ["¿Qué artículo de la NOM habla de Puesta a Tierra y Unión?","Artículo 250"],
+    ["Calibre mínimo de cobre para el conductor del electrodo de puesta a tierra (Varilla)","8 AWG"],
+    ["Diámetro mínimo permitido por la NOM para una varilla de puesta a tierra de acero recubierta de cobre","5/8 pulgadas"]
+];
+let mode="",correct="",pts=0,streak=0;
+
+function home(){
+    document.getElementById('game').classList.add('hidden');
+    document.getElementById('home').classList.remove('hidden');
+}
+function start(m){mode=m;resetStats();document.getElementById('home').classList.add('hidden');document.getElementById('game').classList.remove('hidden');next()}
+function start250(){mode="250";resetStats();document.getElementById('home').classList.add('hidden');document.getElementById('game').classList.remove('hidden');next()}
+
+function resetStats() {
+    pts=0; streak=0;
+    document.getElementById('pts').innerText=pts;
+    document.getElementById('streak').innerText=streak;
+}
+
+function next(){
+    document.getElementById('fb').innerHTML="";
+    const questionDiv = document.getElementById('question');
+    
+    if(mode=="250"){
+        let q=art250[Math.floor(Math.random()*art250.length)];
+        questionDiv.innerHTML=q[0];
+        correct=q[1];
+        let opcionesFalsas = ["6 AWG", "Ahorro de energía", "Voltaje de fase", "10 AWG", "Continuidad de red"].filter(v => v !== correct);
+        render(shuffle([correct, opcionesFalsas[0], opcionesFalsas[1], opcionesFalsas[2]]));
+        return;
+    }
+    
+    let t=[60,75,90][Math.floor(Math.random()*3)];
+    let x=tabla[Math.floor(Math.random()*tabla.length)];
+    
+    if(mode=="amp"||mode=="survival"){
+        questionDiv.innerHTML="Calibre comercial: <strong style='color:#38bdf8'>"+x[0]+" AWG</strong> <br> Temperatura de diseño: <strong style='color:#fb923c'>"+t+"°C</strong>";
+        correct=(t==60?x[1]:t==75?x[2]:x[3])+" A";
+        let falsas = ["20 A","65 A","150 A","40 A","75 A","30 A"].filter(v => v !== correct);
+        render(shuffle([correct, falsas[0], falsas[1], falsas[2]]));
+    } else {
+        let a=(t==60?x[1]:t==75?x[2]:x[3]);
+        questionDiv.innerHTML="Corriente de diseño: <strong style='color:#38bdf8'>"+a+" A</strong> <br> Temperatura de aislamiento: <strong style='color:#fb923c'>"+t+"°C</strong>";
+        correct=x[0]+" AWG";
+        let falsas = ["10 AWG","8 AWG","1/0 AWG","4 AWG","6 AWG","12 AWG"].filter(v => v !== correct);
+        render(shuffle([correct, falsas[0], falsas[1], falsas[2]]));
+    }
+}
+
+function render(arrOptions){
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML="";
+    arrOptions.forEach(v=>{
+        let b=document.createElement('button');
+        b.innerText=v;
+        b.onclick=()=>check(b, v);
+        optionsDiv.appendChild(b);
+    });
+}
+
+function check(buttonClicked, valSelected){
+    // Congelar botones para evitar manipulación de puntuación durante la pausa
+    document.querySelectorAll('#options button').forEach(btn => btn.disabled = true);
+    const fbDiv = document.getElementById('fb');
+    
+    if(valSelected==correct){
+        pts+=10;
+        streak++;
+        fbDiv.innerHTML="<span style='color:#34d399'>✅ ¡Correcto! Cumple con la NOM</span>";
+    }else{
+        streak=0;
+        fbDiv.innerHTML="<span style='color:#f87171'>❌ Violación de Norma. Correcto: "+correct+"</span>";
+        if(mode=="survival") pts=0;
+    }
+    document.getElementById('pts').innerText=pts;
+    document.getElementById('streak').innerText=streak;
+    setTimeout(next,1500);
+}
+
+function shuffle(a){return a.sort(()=>Math.random()-0.5)}
+
+// Registro del Service Worker para soporte offline PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker registrado con éxito', reg))
+            .catch(err => console.error('Error al registrar Service Worker', err));
+    });
+}
+</script>
+</body>
+</html>
