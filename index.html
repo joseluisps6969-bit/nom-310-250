@@ -3,36 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador NOM-001-SEDE</title>
+    <title>⚡ NOM tabla 310 y 250 ⚡</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #0b0f19;
+            background-color: #0b111e;
             color: #f8fafc;
             font-family: ui-sans-serif, system-ui, sans-serif;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6">
+<body class="min-h-screen flex flex-col items-center justify-start p-4 sm:p-6">
 
-    <main class="w-full max-w-2xl mx-auto my-auto bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl shadow-2xl backdrop-blur-md">
-        <!-- Encabezado del Simulador -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 id="main-title" class="text-xl font-bold tracking-tight text-slate-200">Simulador NOM-001-SEDE</h1>
-            <div class="flex space-x-2">
-                <button onclick="pauseQuiz()" class="p-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg transition">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    <!-- ================= MENÚ PRINCIPAL (image_f6a06a.png) ================= -->
+    <div id="menu-container" class="w-full max-w-2xl mt-8 animate-fadeIn">
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-blue-400 mb-8 flex items-center justify-center gap-2">
+            ⚡ NOM tabla 310 y 250 ⚡
+        </h1>
+
+        <!-- Bloque Tabla 310 -->
+        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 mb-6 shadow-xl backdrop-blur-sm">
+            <h2 class="text-xl font-bold text-slate-100 mb-4">Tabla 310 - Conductores</h2>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="alert('Próximamente: ¿Cuántos A aguanta?')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md text-sm">
+                    ¿Cuántos A aguanta?
                 </button>
-                <button onclick="restartQuiz()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition">
+                <button onclick="alert('Próximamente: ¿Qué calibre?')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md text-sm">
+                    ¿Qué calibre?
+                </button>
+                <button onclick="startSupervivencia()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md text-sm">
+                    Modo supervivencia
+                </button>
+            </div>
+        </div>
+
+        <!-- Bloque Art. 250 -->
+        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+            <h2 class="text-xl font-bold text-slate-100 mb-4">Art. 250 - Puesta a Tierra</h2>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="alert('Próximamente: Puesta a tierra y unión')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md text-sm">
+                    Puesta a tierra y unión
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= CONTENEDOR DEL JUEGO (Oculto al inicio) ================= -->
+    <main id="game-container" class="hidden w-full max-w-2xl mt-4 bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl shadow-2xl backdrop-blur-md">
+        <!-- Encabezado Dinámico -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 id="game-title" class="text-lg font-bold tracking-tight text-slate-200">Simulador NOM-001-SEDE</h1>
+            <div class="flex space-x-2">
+                <button onclick="backToMenu()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition" title="Volver al Menú">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                </button>
+                <button onclick="restartQuiz()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition" title="Reiniciar">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"/></svg>
                 </button>
             </div>
         </div>
 
-        <div id="quiz-container">
-            <!-- Bloque de Requerimiento Objetivo -->
-            <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-6 mb-6 flex justify-between items-center relative overflow-hidden">
+        <div id="quiz-interface">
+            <!-- Requerimiento Objetivo -->
+            <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-6 mb-6 flex justify-between items-center">
                 <div>
                     <span id="req-label" class="text-xs font-bold uppercase tracking-widest text-slate-500 block mb-1">REQUERIMIENTO:</span>
                     <div id="target-value" class="text-3xl font-black text-blue-500 tracking-tight">-- Amperes</div>
@@ -41,11 +76,9 @@
             </div>
             
             <!-- Matriz de Botones de Calibre Estilo Tablero Técnica -->
-            <div id="matrix-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                <!-- Se generan dinámicamente los botones del 14 AWG al 250 kcmil -->
-            </div>
+            <div id="matrix-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"></div>
 
-            <!-- Datos de Estatus Inferiores -->
+            <!-- Estatus Inferiores -->
             <div class="flex justify-between border-t border-slate-800/60 pt-4 text-sm px-1">
                 <div>
                     <span class="text-slate-500 block text-xs uppercase font-bold">Puntaje</span>
@@ -58,34 +91,34 @@
             </div>
         </div>
 
-        <!-- Pantalla de Cierre Limpia -->
-        <div id="result-container" class="hidden text-center py-8">
+        <!-- Pantalla de Resultados Limpia -->
+        <div id="result-interface" class="hidden text-center py-8">
             <h2 class="text-xl font-bold text-slate-400 mb-4">Resultado Final</h2>
             <div id="final-score" class="text-5xl font-black text-emerald-400 tracking-tight mb-8">0 / 100</div>
-            <button onclick="restartQuiz()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition duration-150 shadow-lg shadow-blue-600/20">
-                Volver a Intentar
-            </button>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="restartQuiz()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition duration-150 shadow-lg">
+                    Volver a Intentar
+                </button>
+                <button onclick="backToMenu()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 px-8 rounded-xl transition duration-150">
+                    Menú Principal
+                </button>
+            </div>
         </div>
     </main>
 
     <script>
-        // Lista ordenada completa de calibres para renderizar la botonera idéntica
         const listaCalibres = ["14 AWG", "12 AWG", "10 AWG", "8 AWG", "6 AWG", "4 AWG", "2 AWG", "1/0 AWG", "2/0 AWG", "3/0 AWG", "4/0 AWG", "250 kcmil"];
 
-        // Banco de datos interactivo balanceado entre corrientes de carga (310) y protecciones de tierra (250)
         const poolEjercicios = [
-            // Tabla 310.15(B)(16) - Cobre (Se toma el calibre mínimo comercial inmediato superior que soporta la corriente)
             { tipo: "310", val: "15 Amperes", cond: "60°C", ans: "14 AWG" },
             { tipo: "310", val: "20 Amperes", cond: "60°C", ans: "12 AWG" },
             { tipo: "310", val: "30 Amperes", cond: "60°C", ans: "10 AWG" },
-            { tipo: "310", val: "46 Amperes", cond: "60°C", ans: "6 AWG" }, // 46A supera los 40A del 8AWG a 60°C, requiere 6AWG (55A)
+            { tipo: "310", val: "46 Amperes", cond: "60°C", ans: "6 AWG" }, 
             { tipo: "310", val: "65 Amperes", cond: "75°C", ans: "6 AWG" },
             { tipo: "310", val: "85 Amperes", cond: "75°C", ans: "4 AWG" },
             { tipo: "310", val: "115 Amperes", cond: "75°C", ans: "2 AWG" },
             { tipo: "310", val: "150 Amperes", cond: "75°C", ans: "1/0 AWG" },
             { tipo: "310", val: "230 Amperes", cond: "75°C", ans: "4/0 AWG" },
-
-            // Tabla 250.122 - Tierra de Equipos (Cu) según el valor nominal del interruptor
             { tipo: "250", val: "Protección: 15A", cond: "Tierra Cu", ans: "14 AWG" },
             { tipo: "250", val: "Protección: 20A", cond: "Tierra Cu", ans: "12 AWG" },
             { tipo: "250", val: "Protección: 60A", cond: "Tierra Cu", ans: "10 AWG" },
@@ -99,12 +132,23 @@
         let indexActual = 0;
         let puntos = 0;
 
+        function startSupervivencia() {
+            document.getElementById("menu-container").classList.add("hidden");
+            document.getElementById("game-container").classList.remove("hidden");
+            initQuiz();
+        }
+
+        function backToMenu() {
+            document.getElementById("game-container").classList.add("hidden");
+            document.getElementById("menu-container").classList.remove("hidden");
+        }
+
         function initQuiz() {
             seleccionados = poolEjercicios.sort(() => Math.random() - 0.5).slice(0, 10);
             indexActual = 0;
             puntos = 0;
-            document.getElementById("quiz-container").classList.remove("hidden");
-            document.getElementById("result-container").classList.add("hidden");
+            document.getElementById("quiz-interface").classList.remove("hidden");
+            document.getElementById("result-interface").classList.add("hidden");
             document.getElementById("status-text").innerText = `Puntos: ${puntos}`;
             renderButtons();
             loadQuestion();
@@ -131,13 +175,12 @@
             document.getElementById("score-text").innerText = `Pregunta ${indexActual + 1}/10`;
             const current = seleccionados[indexActual];
             
-            // Cambiar textos según tabla activa
             if (current.tipo === "310") {
                 document.getElementById("req-label").innerText = "REQUERIMIENTO:";
-                document.getElementById("main-title").innerText = "Simulador NOM (Tabla 310.15)";
+                document.getElementById("game-title").innerText = "Simulador NOM (Tabla 310.15)";
             } else {
                 document.getElementById("req-label").innerText = "SISTEMA DE TIERRAS:";
-                document.getElementById("main-title").innerText = "Simulador NOM (Tabla 250.122)";
+                document.getElementById("game-title").innerText = "Simulador NOM (Tabla 250.122)";
             }
 
             document.getElementById("target-value").innerText = current.val;
@@ -156,7 +199,6 @@
                 clickedBtn.className = "w-full text-center py-4 rounded-xl font-bold text-base transition bg-emerald-600 border border-emerald-400 text-white shadow-lg";
             } else {
                 clickedBtn.className = "w-full text-center py-4 rounded-xl font-bold text-base transition bg-rose-600 border border-rose-400 text-white shadow-lg";
-                // Resaltar el botón correcto
                 for (let b of botones) {
                     if (b.innerText === current.ans) {
                         b.className = "w-full text-center py-4 rounded-xl font-bold text-base transition bg-emerald-600/80 text-white";
@@ -166,20 +208,16 @@
 
             setTimeout(() => {
                 indexActual++;
-                renderButtons(); // Limpia estilos y redefine botones para el siguiente paso
+                renderButtons();
                 loadQuestion();
             }, 1100);
         }
 
         function showResults() {
-            document.getElementById("quiz-container").classList.add("hidden");
-            document.getElementById("result-container").classList.remove("hidden");
+            document.getElementById("quiz-interface").classList.add("hidden");
+            document.getElementById("result-interface").classList.remove("hidden");
             document.getElementById("final-score").innerText = `${puntos} / 100`;
-            document.getElementById("main-title").innerText = "Simulador NOM-001-SEDE";
-        }
-
-        function pauseQuiz() {
-            alert("Simulador pausado. Presiona Aceptar para continuar.");
+            document.getElementById("game-title").innerText = "Simulador NOM-001-SEDE";
         }
 
         function restartQuiz() {
@@ -191,8 +229,6 @@
                 navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
             });
         }
-
-        initQuiz();
     </script>
 </body>
 </html>
