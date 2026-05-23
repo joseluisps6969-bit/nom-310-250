@@ -1,151 +1,198 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NOM </title>
-<!-- Enlace para que el dispositivo reconozca las propiedades de instalación PWA -->
-<link rel="manifest" href="manifest.json">
-<style>
-body{font-family:Arial,sans-serif;background:#0f172a;color:#fff;margin:0}
-header{background:#111827;padding:15px;text-align:center;border-bottom:2px solid #1e293b}
-h1{margin:0;font-size:24px;color:#38bdf8}
-.screen{padding:20px;max-width:800px;margin:auto}
-.card{background:#1e293b;padding:20px;border-radius:12px;margin:15px 0;border:1px solid #334155}
-h2{margin-top:0;color:#f8fafc;font-size:20px}
-button{padding:12px 20px;border:none;border-radius:8px;margin:5px;background:#2563eb;color:white;cursor:pointer;font-weight:bold;font-size:14px;transition:background 0.2s}
-button:hover{background:#1d4ed8}
-button:disabled{background:#475569;cursor:not-allowed}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:15px}
-.hidden{display:none}
-#question{font-size:24px;text-align:center;margin:30px 0;color:#f1f5f9;line-height:1.4}
-#fb{text-align:center;font-size:22px;margin:15px;min-height:32px;font-weight:bold}
-.btn-nav{background:#475569;margin-top:25px;width:100%;padding:14px}
-.btn-nav:hover{background:#334155}
-.stats{font-size:18px;font-weight:bold;background:#1e293b;padding:10px 15px;border-radius:8px;display:flex;justify-content:space-between;border:1px solid #334155}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador NOM-001-SEDE</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+        }
+    </style>
 </head>
-<body>
-<header><h1>⚡ NOM tabla 310 y 250⚡ </h1></header>
+<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6">
 
-<div class="screen" id="home">
-<div class="card"><h2>Tabla 310 - Conductores</h2>
-<button onclick="start('amp')">¿Cuántos A aguanta?</button>
-<button onclick="start('calibre')">¿Qué calibre?</button>
-<button onclick="start('survival')">Modo supervivencia</button>
-</div>
+    <main class="w-full max-w-2xl mx-auto my-auto bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl shadow-2xl backdrop-blur-md">
+        <!-- Encabezado del Simulador -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 id="main-title" class="text-xl font-bold tracking-tight text-slate-200">Simulador NOM-001-SEDE</h1>
+            <div class="flex space-x-2">
+                <button onclick="pauseQuiz()" class="p-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg transition">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button onclick="restartQuiz()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"/></svg>
+                </button>
+            </div>
+        </div>
 
-<div class="card"><h2>Art. 250 - Puesta a Tierra</h2>
-<button onclick="start250()">Puesta a tierra y unión</button>
-</div>
-</div>
+        <div id="quiz-container">
+            <!-- Bloque de Requerimiento Objetivo -->
+            <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-6 mb-6 flex justify-between items-center relative overflow-hidden">
+                <div>
+                    <span id="req-label" class="text-xs font-bold uppercase tracking-widest text-slate-500 block mb-1">REQUERIMIENTO:</span>
+                    <div id="target-value" class="text-3xl font-black text-blue-500 tracking-tight">-- Amperes</div>
+                </div>
+                <div id="target-condition" class="text-2xl font-bold text-slate-300 tracking-wide">--°C</div>
+            </div>
+            
+            <!-- Matriz de Botones de Calibre Estilo Tablero Técnica -->
+            <div id="matrix-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <!-- Se generan dinámicamente los botones del 14 AWG al 250 kcmil -->
+            </div>
 
-<div class="screen hidden" id="game">
-<div class="stats">
-    <span>Puntos: <span id="pts" style="color:#38bdf8">0</span></span>
-    <span>Racha 🔥: <span id="streak" style="color:#fb923c">0</span></span>
-</div>
-<div id="question"></div>
-<div id="options" class="grid"></div>
-<div id="fb"></div>
-<button class="btn-nav" onclick="home()">Volver al Inicio</button>
-</div>
+            <!-- Datos de Estatus Inferiores -->
+            <div class="flex justify-between border-t border-slate-800/60 pt-4 text-sm px-1">
+                <div>
+                    <span class="text-slate-500 block text-xs uppercase font-bold">Puntaje</span>
+                    <span id="score-text" class="text-base font-bold text-slate-300">Pregunta 1/10</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-slate-500 block text-xs uppercase font-bold">Estatus</span>
+                    <span id="status-text" class="text-base font-bold text-emerald-400">Puntos: 0</span>
+                </div>
+            </div>
+        </div>
 
-<script>
-// Base de datos técnicos reales de la NOM-001-SEDE
-const tabla=[["14",15,15,25],["12",20,20,30],["10",30,30,40],["8",40,50,55],["6",55,65,75],["4",70,85,95],["2",95,115,130],["1/0",125,150,170]];
-const art250=[
-    ["Interruptor de 100A: Calibre mínimo del conductor de puesta a tierra de equipos (Cobre)","8 AWG"],
-    ["Función principal del sistema de puesta a tierra de equipos","Protección contra descargas"],
-    ["¿Qué artículo de la NOM habla de Puesta a Tierra y Unión?","Artículo 250"],
-    ["Calibre mínimo de cobre para el conductor del electrodo de puesta a tierra (Varilla)","8 AWG"],
-    ["Diámetro mínimo permitido por la NOM para una varilla de puesta a tierra de acero recubierta de cobre","5/8 pulgadas"]
-];
-let mode="",correct="",pts=0,streak=0;
+        <!-- Pantalla de Cierre Limpia -->
+        <div id="result-container" class="hidden text-center py-8">
+            <h2 class="text-xl font-bold text-slate-400 mb-4">Resultado Final</h2>
+            <div id="final-score" class="text-5xl font-black text-emerald-400 tracking-tight mb-8">0 / 100</div>
+            <button onclick="restartQuiz()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition duration-150 shadow-lg shadow-blue-600/20">
+                Volver a Intentar
+            </button>
+        </div>
+    </main>
 
-function home(){
-    document.getElementById('game').classList.add('hidden');
-    document.getElementById('home').classList.remove('hidden');
-}
-function start(m){mode=m;resetStats();document.getElementById('home').classList.add('hidden');document.getElementById('game').classList.remove('hidden');next()}
-function start250(){mode="250";resetStats();document.getElementById('home').classList.add('hidden');document.getElementById('game').classList.remove('hidden');next()}
+    <script>
+        // Lista ordenada completa de calibres para renderizar la botonera idéntica
+        const listaCalibres = ["14 AWG", "12 AWG", "10 AWG", "8 AWG", "6 AWG", "4 AWG", "2 AWG", "1/0 AWG", "2/0 AWG", "3/0 AWG", "4/0 AWG", "250 kcmil"];
 
-function resetStats() {
-    pts=0; streak=0;
-    document.getElementById('pts').innerText=pts;
-    document.getElementById('streak').innerText=streak;
-}
+        // Banco de datos interactivo balanceado entre corrientes de carga (310) y protecciones de tierra (250)
+        const poolEjercicios = [
+            // Tabla 310.15(B)(16) - Cobre (Se toma el calibre mínimo comercial inmediato superior que soporta la corriente)
+            { tipo: "310", val: "15 Amperes", cond: "60°C", ans: "14 AWG" },
+            { tipo: "310", val: "20 Amperes", cond: "60°C", ans: "12 AWG" },
+            { tipo: "310", val: "30 Amperes", cond: "60°C", ans: "10 AWG" },
+            { tipo: "310", val: "46 Amperes", cond: "60°C", ans: "6 AWG" }, // 46A supera los 40A del 8AWG a 60°C, requiere 6AWG (55A)
+            { tipo: "310", val: "65 Amperes", cond: "75°C", ans: "6 AWG" },
+            { tipo: "310", val: "85 Amperes", cond: "75°C", ans: "4 AWG" },
+            { tipo: "310", val: "115 Amperes", cond: "75°C", ans: "2 AWG" },
+            { tipo: "310", val: "150 Amperes", cond: "75°C", ans: "1/0 AWG" },
+            { tipo: "310", val: "230 Amperes", cond: "75°C", ans: "4/0 AWG" },
 
-function next(){
-    document.getElementById('fb').innerHTML="";
-    const questionDiv = document.getElementById('question');
-    
-    if(mode=="250"){
-        let q=art250[Math.floor(Math.random()*art250.length)];
-        questionDiv.innerHTML=q[0];
-        correct=q[1];
-        let opcionesFalsas = ["6 AWG", "Ahorro de energía", "Voltaje de fase", "10 AWG", "Continuidad de red"].filter(v => v !== correct);
-        render(shuffle([correct, opcionesFalsas[0], opcionesFalsas[1], opcionesFalsas[2]]));
-        return;
-    }
-    
-    let t=[60,75,90][Math.floor(Math.random()*3)];
-    let x=tabla[Math.floor(Math.random()*tabla.length)];
-    
-    if(mode=="amp"||mode=="survival"){
-        questionDiv.innerHTML="Calibre comercial: <strong style='color:#38bdf8'>"+x[0]+" AWG</strong> <br> Temperatura de diseño: <strong style='color:#fb923c'>"+t+"°C</strong>";
-        correct=(t==60?x[1]:t==75?x[2]:x[3])+" A";
-        let falsas = ["20 A","65 A","150 A","40 A","75 A","30 A"].filter(v => v !== correct);
-        render(shuffle([correct, falsas[0], falsas[1], falsas[2]]));
-    } else {
-        let a=(t==60?x[1]:t==75?x[2]:x[3]);
-        questionDiv.innerHTML="Corriente de diseño: <strong style='color:#38bdf8'>"+a+" A</strong> <br> Temperatura de aislamiento: <strong style='color:#fb923c'>"+t+"°C</strong>";
-        correct=x[0]+" AWG";
-        let falsas = ["10 AWG","8 AWG","1/0 AWG","4 AWG","6 AWG","12 AWG"].filter(v => v !== correct);
-        render(shuffle([correct, falsas[0], falsas[1], falsas[2]]));
-    }
-}
+            // Tabla 250.122 - Tierra de Equipos (Cu) según el valor nominal del interruptor
+            { tipo: "250", val: "Protección: 15A", cond: "Tierra Cu", ans: "14 AWG" },
+            { tipo: "250", val: "Protección: 20A", cond: "Tierra Cu", ans: "12 AWG" },
+            { tipo: "250", val: "Protección: 60A", cond: "Tierra Cu", ans: "10 AWG" },
+            { tipo: "250", val: "Protección: 100A", cond: "Tierra Cu", ans: "8 AWG" },
+            { tipo: "250", val: "Protección: 200A", cond: "Tierra Cu", ans: "6 AWG" },
+            { tipo: "250", val: "Protección: 400A", cond: "Tierra Cu", ans: "3 AWG" },
+            { tipo: "250", val: "Protección: 600A", cond: "Tierra Cu", ans: "1 AWG" }
+        ];
 
-function render(arrOptions){
-    const optionsDiv = document.getElementById('options');
-    optionsDiv.innerHTML="";
-    arrOptions.forEach(v=>{
-        let b=document.createElement('button');
-        b.innerText=v;
-        b.onclick=()=>check(b, v);
-        optionsDiv.appendChild(b);
-    });
-}
+        let seleccionados = [];
+        let indexActual = 0;
+        let puntos = 0;
 
-function check(buttonClicked, valSelected){
-    // Congelar botones para evitar manipulación de puntuación durante la pausa
-    document.querySelectorAll('#options button').forEach(btn => btn.disabled = true);
-    const fbDiv = document.getElementById('fb');
-    
-    if(valSelected==correct){
-        pts+=10;
-        streak++;
-        fbDiv.innerHTML="<span style='color:#34d399'>✅ ¡Correcto! Cumple con la NOM</span>";
-    }else{
-        streak=0;
-        fbDiv.innerHTML="<span style='color:#f87171'>❌ Violación de Norma. Correcto: "+correct+"</span>";
-        if(mode=="survival") pts=0;
-    }
-    document.getElementById('pts').innerText=pts;
-    document.getElementById('streak').innerText=streak;
-    setTimeout(next,1500);
-}
+        function initQuiz() {
+            seleccionados = poolEjercicios.sort(() => Math.random() - 0.5).slice(0, 10);
+            indexActual = 0;
+            puntos = 0;
+            document.getElementById("quiz-container").classList.remove("hidden");
+            document.getElementById("result-container").classList.add("hidden");
+            document.getElementById("status-text").innerText = `Puntos: ${puntos}`;
+            renderButtons();
+            loadQuestion();
+        }
 
-function shuffle(a){return a.sort(()=>Math.random()-0.5)}
+        function renderButtons() {
+            const container = document.getElementById("matrix-container");
+            container.innerHTML = "";
+            listaCalibres.forEach(calibre => {
+                const btn = document.createElement("button");
+                btn.className = "w-full text-center bg-blue-600 hover:bg-blue-500 font-bold py-4 rounded-xl transition duration-100 text-white shadow-md text-base tracking-wide focus:outline-none";
+                btn.innerText = calibre;
+                btn.onclick = () => checkAnswer(calibre, btn);
+                container.appendChild(btn);
+            });
+        }
 
-// Registro del Service Worker para soporte offline PWA
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('Service Worker registrado con éxito', reg))
-            .catch(err => console.error('Error al registrar Service Worker', err));
-    });
-}
-</script>
+        function loadQuestion() {
+            if (indexActual >= seleccionados.length) {
+                showResults();
+                return;
+            }
+
+            document.getElementById("score-text").innerText = `Pregunta ${indexActual + 1}/10`;
+            const current = seleccionados[indexActual];
+            
+            // Cambiar textos según tabla activa
+            if (current.tipo === "310") {
+                document.getElementById("req-label").innerText = "REQUERIMIENTO:";
+                document.getElementById("main-title").innerText = "Simulador NOM (Tabla 310.15)";
+            } else {
+                document.getElementById("req-label").innerText = "SISTEMA DE TIERRAS:";
+                document.getElementById("main-title").innerText = "Simulador NOM (Tabla 250.122)";
+            }
+
+            document.getElementById("target-value").innerText = current.val;
+            document.getElementById("target-condition").innerText = current.cond;
+        }
+
+        function checkAnswer(selectedCalibre, clickedBtn) {
+            const current = seleccionados[indexActual];
+            const botones = document.getElementById("matrix-container").getElementsByTagName("button");
+
+            for (let b of botones) { b.disabled = true; }
+
+            if (selectedCalibre === current.ans) {
+                puntos += 10;
+                document.getElementById("status-text").innerText = `Puntos: ${puntos}`;
+                clickedBtn.className = "w-full text-center py-4 rounded-xl font-bold text-base transition bg-emerald-600 border border-emerald-400 text-white shadow-lg";
+            } else {
+                clickedBtn.className = "w-full text-center py-4 rounded-xl font-bold text-base transition bg-rose-600 border border-rose-400 text-white shadow-lg";
+                // Resaltar el botón correcto
+                for (let b of botones) {
+                    if (b.innerText === current.ans) {
+                        b.className = "w-full text-center py-4 rounded-xl font-bold text-base transition bg-emerald-600/80 text-white";
+                    }
+                }
+            }
+
+            setTimeout(() => {
+                indexActual++;
+                renderButtons(); // Limpia estilos y redefine botones para el siguiente paso
+                loadQuestion();
+            }, 1100);
+        }
+
+        function showResults() {
+            document.getElementById("quiz-container").classList.add("hidden");
+            document.getElementById("result-container").classList.remove("hidden");
+            document.getElementById("final-score").innerText = `${puntos} / 100`;
+            document.getElementById("main-title").innerText = "Simulador NOM-001-SEDE";
+        }
+
+        function pauseQuiz() {
+            alert("Simulador pausado. Presiona Aceptar para continuar.");
+        }
+
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
+            });
+        }
+
+        initQuiz();
+    </script>
 </body>
 </html>
